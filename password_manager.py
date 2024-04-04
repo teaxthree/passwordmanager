@@ -1,18 +1,21 @@
-username = ""
-password = ""
 hardcoded_user = "admin"
 hardcoded_password = "password"
 
-def login():
+def login(username, password):
     if username == hardcoded_user and password == hardcoded_password:
         print("Login successful")
     else:
-        "Invalid username or password."
-    username = input("Username: ")
-    password = input("Password: ")
+        print("Invalid username or password.")
+        username = input("Username: ")
+        password = input("Password: ")
+    return username, password
+    
+#initial login prompt
+user = input("Username: ")
+pw = input("Password: ")
 
-username = input("Username: ")
-password = input("Password: ")
 
-while username != hardcoded_user or password != hardcoded_password:
-    login()
+#continuously prompt for login until valid credentials are provided
+while user != hardcoded_user or pw != hardcoded_password:
+    login(user, pw)
+     
