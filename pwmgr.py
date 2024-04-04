@@ -1,7 +1,0 @@
-print("Test file")
-print ("What's up?")
-print ("What's up?")
-print ("Learning")
-print ("Wait this is cool")
-print ("something")
-print ('something else')
