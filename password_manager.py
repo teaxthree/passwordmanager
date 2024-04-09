@@ -1,7 +1,7 @@
-hardcoded_user = "abc"
-hardcoded_password = "123"
-user = ""
-pw = ""
+hardcoded_user = "abc" #placeholder for authentication
+hardcoded_password = "123" #placeholder for authentication
+user = "" #input of username
+pw = "" #input of password
 
 def login(u, p):
     print("Invalid username or password.")
