@@ -1,35 +1,17 @@
 import json
-from cryptography.fernet import Fernet
-import os
-import base64
+import argon2
 
-hardcoded_user = "abc" #placeholder for authentication
-hardcoded_password = "123" #placeholder for authentication
-user = "" #input of username
-pw = "" #input of password
-loginCounter = 3 #attempts remaining to input correct credentials
-
+#Password Hasher object
+ph = argon2.PasswordHasher()
 
 ###FUNCTIONS###############################################################
-def login(u, p): #username, password
-    print("Invalid username or password.")
-    u = input("Username: ")
-    p = input("Password: ")
-    return u, p
-
-#generates key for password
-def generate_key():
-    return Fernet.generate_key()
-
 def addPassword(): #application, username, password
-    website = input("Application/Website: ")
+    website = input("Application/Website: ").lower()
     username = input("Username: ")
     password = input("Password: ")
 
-    #object used for encrypting/decrypting key
-    encrypted_password = cipher.encrypt(password.encode())
-    #changing password from bytes to string using base64
-    encrypted_password_str = base64.b64encode(encrypted_password).decode()
+    #hashing password
+    hash = ph.hash(password)
     #load existing JSON data
     try:
         with open("passwords.json", "r") as file:
@@ -41,7 +23,7 @@ def addPassword(): #application, username, password
     new_entry = {
         "website": website,
         "username": username,
-        "password": encrypted_password_str
+        "password": hash
     }
     data.append(new_entry)
 
@@ -49,27 +31,34 @@ def addPassword(): #application, username, password
     with open("passwords.json", "w") as file:
         json.dump(data, file, indent=4)
 
-#Generate encrpytion key only once when Python file starts
-if "ENCRYPTION_KEY" not in os.environ:
-    key = generate_key()
-    os.environ["ENCRYPTION_KEY"] = key.decode()
-key = os.environ["ENCRYPTION_KEY"]
-cipher = Fernet(key)
-
-print (key)
-#initial login prompt
-user = input("Username: ")
-pw = input("Password: ")
 
 #continuously prompt for login until valid credentials are provided
-while user != hardcoded_user and pw != hardcoded_password and loginCounter != 0:
-    print("Remaining login attempts: " + str(loginCounter))
-    user, pw = login(user, pw)
-    loginCounter -= 1
+def login():
+    loginCounter = 3
+    try:
+        with open("passwords.json", "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        data = []
+    #input username and password
+    username = input("Username: ")
+    password = input("Password: ")
+    hash = ph.hash(password)
+    print(hash)
+    for entry in data:
+        if entry["username"] == username and entry["password"] == hash and ph.verify("encrypted_password", password) == True:
+            print(entry)
+            return
+        elif loginCounter == 0:
+            print("Too many login attempts.")
+            return
+        else:
+            print("Passwords did not match. Login attempts remaining: " + str(loginCounter))
+            username = input("Username: ")
+            password = input("Password: ")
+        loginCounter -= 1
+        
 
-if (user == hardcoded_user) and (pw == hardcoded_password):
-    print("Login successful.")
-else:
-    print("Login unsuccessful.")
+addPassword()        
 
-addPassword()
+
